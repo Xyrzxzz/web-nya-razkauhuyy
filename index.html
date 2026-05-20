@@ -20,6 +20,7 @@
             --sidebar-text: #f9fafb;
             --header-bg: rgba(255, 255, 255, 0.9);
             --border-color: #e5e7eb;
+            --msg-time: #9ca3af;
         }
 
         body.dark-theme {
@@ -33,6 +34,7 @@
             --sidebar-text: #f3f4f6;
             --header-bg: rgba(17, 24, 39, 0.9);
             --border-color: #374151;
+            --msg-time: #6b7280;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -70,21 +72,106 @@
             transform: translateX(-100%);
         }
         .sidebar.open { transform: translateX(0); }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #374151; }
-        .profile-section { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid #374151; }
+        .profile-section { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .avatar { width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: white; }
         .name-wrapper { flex: 1; }
-        #userNameDisplay { font-weight: 600; font-size: 16px; margin-bottom: 3px; }
-        .edit-name-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;}
+        #userNameDisplay { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+        .edit-name-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 4px;}
         
-        .info-section { padding: 20px; font-size: 12px; color: #9ca3af; flex: 1; overflow-y: auto;}
-        .info-item { margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        /* List Tabel Riwayat Chat */
+        .history-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .history-title-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .history-item {
+            width: 100%;
+            background: #1f2937;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        .sidebar-dark-theme .history-item { background: #111827; }
+        .history-item:hover, .history-item.active { background: #374151; }
+        .history-text-wrapper {
+            flex: 1;
+            overflow: hidden;
+            padding-right: 8px;
+        }
+        .history-item-title {
+            font-size: 13px;
+            color: #f3f4f6;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-item-time {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .delete-history-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+        .delete-history-btn:hover { color: #ef4444; }
+
+        .new-chat-sidebar-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .settings-section { padding: 15px; border-top: 1px solid #374151; background-color: var(--sidebar-bg); }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px;}
+        select { background: #374151; color: white; border: none; padding: 4px 8px; border-radius: 5px; outline: none; cursor: pointer; font-size: 12px;}
         
-        .settings-section { padding: 20px; border-top: 1px solid #374151; background-color: var(--sidebar-bg); }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px;}
-        select { background: #374151; color: white; border: none; padding: 6px 10px; border-radius: 6px; outline: none; cursor: pointer;}
-        
-        .clear-chat-btn { width: 100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .footer-credit {
+            text-align: center;
+            font-size: 11px;
+            color: #4b5563;
+            padding-top: 10px;
+            border-top: 1px solid #374151;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
 
         /* Overlay gelap saat sidebar buka di HP */
         .overlay {
@@ -130,10 +217,31 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 18px;
             background: var(--chat-bg);
             -webkit-overflow-scrolling: touch;
             transition: background-color 0.3s ease;
+        }
+
+        /* Pembatas Tanggal Hari */
+        .day-separator {
+            text-align: center;
+            margin: 10px 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .day-separator span {
+            background: var(--bg-color);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         /* Tampilan Layar Kosong (Hero) */
@@ -148,29 +256,71 @@
         .hero-title { font-size: 22px; font-weight: 600; margin-bottom: 10px; line-height: 1.3; }
         .hero-subtitle { color: var(--text-muted); font-size: 14px; max-width: 320px; margin: 0 auto; line-height: 1.4; }
 
+        /* Struktur Balon Chat Grouping */
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            position: relative;
+        }
+        .message-wrapper.user-wrap { align-self: flex-end; align-items: flex-end; }
+        .message-wrapper.ai-wrap { align-self: flex-start; align-items: flex-start; }
+
         /* Balon Chat */
         .message {
-            max-width: 85%;
             padding: 12px 16px;
             border-radius: 18px;
             font-size: 15px;
             line-height: 1.5;
             word-wrap: break-word;
             animation: slideUp 0.3s ease;
+            position: relative;
         }
         .user-msg {
             background-color: var(--user-bubble);
             color: white;
-            align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
         .ai-msg {
             background-color: var(--ai-bubble);
             color: var(--text-main);
-            align-self: flex-start;
             border-bottom-left-radius: 4px;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+
+        /* Waktu Pengiriman Pesan (Jam) */
+        .msg-timestamp {
+            font-size: 10px;
+            color: var(--msg-time);
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+
+        /* Menu Aksi Pesan (Salin/Hapus) */
+        .msg-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .message-wrapper:hover .msg-actions { opacity: 1; }
+        /* Selalu muncul di device sentuh/mobile */
+        @media (max-width: 768px) { .msg-actions { opacity: 0.7; } }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 4px;
+        }
+        .action-btn:hover { color: var(--primary); }
+        .action-btn.del-msg-btn:hover { color: #ef4444; }
 
         /* Indikator Berpikir (Typing) */
         .typing-indicator {
@@ -231,12 +381,12 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        /* Media Query Desktop & Orientasi Layar */
+        /* Media Query Desktop */
         @media (min-width: 768px) {
             .sidebar { transform: translateX(0); position: relative; }
             .overlay { display: none !important; }
             .menu-btn { display: none; }
-            .message { max-width: 70%; }
+            .message-wrapper { max-width: 70%; }
         }
     </style>
 </head>
@@ -255,13 +405,11 @@
             </div>
         </div>
         
-        <div class="info-section">
-            <div class="info-item"><i class="fas fa-clock"></i> <span id="currentTime"></span></div>
-            <div class="info-item"><i class="fas fa-history"></i> Terakhir buka: <span id="lastOpened">Baru saja</span></div>
-            <br>
-            <p style="color: #6b7280; font-weight: bold; margin-bottom: 10px;">Status Sistem</p>
-            <div class="info-item" style="color: #4ade80;"><i class="fas fa-check-circle"></i> AI Siap Digunakan</div>
-            <div class="info-item" style="color: #4ade80;"><i class="fas fa-check-circle"></i> Memori Aktif</div>
+        <div class="history-section">
+            <button class="new-chat-sidebar-btn" onclick="startNewChatSession()"><i class="fas fa-plus"></i> Obrolan Baru</button>
+            <div class="history-title-label">Riwayat Obrolan</div>
+            <div class="history-list" id="historyContainerList">
+                </div>
         </div>
 
         <div class="settings-section">
@@ -279,7 +427,9 @@
                     <option value="en">English</option>
                 </select>
             </div>
-            <button class="clear-chat-btn" onclick="clearHistory()"><i class="fas fa-trash"></i> Hapus Obrolan</button>
+            <div class="footer-credit">
+                MADE BY RAZKAUHUYY
+            </div>
         </div>
     </div>
 
@@ -305,8 +455,11 @@
         const userInput = document.getElementById('userInput');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
+        const historyContainerList = document.getElementById('historyContainerList');
         
-        let chatHistoryData = [];
+        // Struktur Data Multi Sesi Obrolan
+        let allSessions = {};
+        let currentSessionId = "";
 
         const uiText = {
             id: {
@@ -325,9 +478,7 @@
 
         window.onload = () => {
             loadUserData();
-            updateTime();
-            setInterval(updateTime, 60000);
-            loadChatHistory();
+            loadAllSessions();
             window.addEventListener('resize', scrollToBottom);
         };
 
@@ -336,33 +487,15 @@
             overlay.classList.toggle('show');
         }
 
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const dateString = now.toLocaleDateString();
-            document.getElementById('currentTime').innerText = `${dateString} - ${timeString}`;
-        }
-
         function loadUserData() {
-            // Load Nama
             let nama = localStorage.getItem('ai_userName') || 'Guest';
             document.getElementById('userNameDisplay').innerText = nama;
             document.getElementById('avatarInitial').innerText = nama.charAt(0).toUpperCase();
 
-            // Load Histori Waktu Akses
-            let lastOpen = localStorage.getItem('ai_lastOpened');
-            if(lastOpen) {
-                document.getElementById('lastOpened').innerText = lastOpen;
-            }
-            const now = new Date();
-            localStorage.setItem('ai_lastOpened', now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
-
-            // Load Tema
             let savedTheme = localStorage.getItem('ai_theme') || 'light';
             document.getElementById('themeSelect').value = savedTheme;
             applyTheme(savedTheme);
 
-            // Load Bahasa
             let lang = localStorage.getItem('ai_lang') || 'id';
             document.getElementById('langSelect').value = lang;
             applyLanguage(lang);
@@ -401,7 +534,7 @@
             userInput.placeholder = uiText[lang].placeholder;
             document.getElementById('headerTitle').innerText = uiText[lang].header;
             
-            if (chatHistoryData.length === 0) {
+            if (!currentSessionId || !allSessions[currentSessionId] || allSessions[currentSessionId].messages.length === 0) {
                 renderHero(lang);
             }
         }
@@ -416,36 +549,184 @@
             `;
         }
 
-        function loadChatHistory() {
-            let savedChat = localStorage.getItem('ai_chatHistory');
-            if (savedChat) {
-                chatHistoryData = JSON.parse(savedChat);
-                if (chatHistoryData.length > 0) {
-                    chatBox.innerHTML = '';
-                    chatHistoryData.forEach(msg => {
-                        let div = document.createElement('div');
-                        div.className = `message ${msg.role === 'user' ? 'user-msg' : 'ai-msg'}`;
-                        div.innerText = msg.text;
-                        chatBox.appendChild(div);
-                    });
-                    scrollToBottom();
-                } else {
-                    let lang = localStorage.getItem('ai_lang') || 'id';
-                    renderHero(lang);
-                }
+        /* --- MANAJEMEN MULTI SESI RIWAYAT (TABEL BUTTON) --- */
+        function loadAllSessions() {
+            let savedSessions = localStorage.getItem('ai_all_sessions');
+            if (savedSessions) {
+                allSessions = JSON.parse(savedSessions);
+            }
+
+            let sessionKeys = Object.keys(allSessions);
+            if (sessionKeys.length === 0) {
+                startNewChatSession();
             } else {
-                let lang = localStorage.getItem('ai_lang') || 'id';
-                renderHero(lang);
+                // Urutkan ambil yang paling baru diakses
+                sessionKeys.sort((a, b) => allSessions[b].updatedAt - allSessions[a].updatedAt);
+                currentSessionId = sessionKeys[0];
+                renderHistoryTableList();
+                renderCurrentChatMessages();
             }
         }
 
-        function clearHistory() {
-            if(confirm("Yakin ingin menghapus semua memori obrolan?")) {
-                localStorage.removeItem('ai_chatHistory');
-                chatHistoryData = [];
+        function saveAllSessionsToStorage() {
+            localStorage.setItem('ai_all_sessions', JSON.stringify(allSessions));
+        }
+
+        function startNewChatSession() {
+            let id = 'session_' + Date.now();
+            allSessions[id] = {
+                id: id,
+                title: 'Obrolan Kosong',
+                messages: [],
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+            currentSessionId = id;
+            saveAllSessionsToStorage();
+            renderHistoryTableList();
+            renderCurrentChatMessages();
+            
+            if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function selectSession(id) {
+            currentSessionId = id;
+            renderHistoryTableList();
+            renderCurrentChatMessages();
+            if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function deleteSessionTable(id, event) {
+            event.stopPropagation(); // Biar ga trigger selectSession
+            if(confirm("Hapus tabel riwayat obrolan ini?")) {
+                delete allSessions[id];
+                saveAllSessionsToStorage();
+                
+                let keys = Object.keys(allSessions);
+                if(keys.length === 0) {
+                    startNewChatSession();
+                } else {
+                    if(currentSessionId === id) {
+                        currentSessionId = keys[0];
+                    }
+                    renderHistoryTableList();
+                    renderCurrentChatMessages();
+                }
+            }
+        }
+
+        function renderHistoryTableList() {
+            historyContainerList.innerHTML = '';
+            let keys = Object.keys(allSessions).sort((a, b) => allSessions[b].updatedAt - allSessions[a].updatedAt);
+            
+            keys.forEach(key => {
+                let s = allSessions[key];
+                let dateObj = new Date(s.updatedAt);
+                let timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                let activeClass = (key === currentSessionId) ? 'active' : '';
+
+                let itemHTML = `
+                    <div class="history-item ${activeClass}" onclick="selectSession('${s.id}')">
+                        <div class="history-text-wrapper">
+                            <div class="history-item-title">${s.title}</div>
+                            <div class="history-item-time">${timeStr}</div>
+                        </div>
+                        <button class="delete-history-btn" onclick="deleteSessionTable('${s.id}', event)">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                historyContainerList.innerHTML += itemHTML;
+            });
+        }
+
+        function renderCurrentChatMessages() {
+            chatBox.innerHTML = '';
+            let s = allSessions[currentSessionId];
+            
+            if(!s || s.messages.length === 0) {
                 let lang = localStorage.getItem('ai_lang') || 'id';
                 renderHero(lang);
-                if(window.innerWidth < 768) toggleSidebar();
+                return;
+            }
+
+            let lastDateLabel = "";
+
+            s.messages.forEach(msg => {
+                // Cetak pembatas hari jika hari berbeda
+                if(msg.dayLabel && msg.dayLabel !== lastDateLabel) {
+                    let sep = document.createElement('div');
+                    sep.className = 'day-separator';
+                    sep.innerHTML = `<span>${msg.dayLabel}</span>`;
+                    chatBox.appendChild(sep);
+                    lastDateLabel = msg.dayLabel;
+                }
+
+                appendMessageDOM(msg.text, msg.role === 'user' ? 'user' : 'ai', msg.timeStr, msg.id);
+            });
+            scrollToBottom();
+        }
+
+        /* --- TAMPILAN BALON CHAT & AKSI --- */
+        function getDayLabel(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        function appendMessageDOM(text, sender, timeStr, msgId) {
+            let wrap = document.createElement('div');
+            wrap.className = `message-wrapper ${sender === 'user' ? 'user-wrap' : 'ai-wrap'}`;
+            wrap.id = 'msg-wrap-' + msgId;
+
+            let div = document.createElement('div');
+            div.className = `message ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            wrap.appendChild(div);
+
+            // Elemen Jam Terkirim Di Bawah Balon
+            let timeDiv = document.createElement('div');
+            timeDiv.className = 'msg-timestamp';
+            timeDiv.innerText = timeStr;
+            wrap.appendChild(timeDiv);
+
+            // Tombol Salin dan Hapus Pesan Individu
+            let actionsDiv = document.createElement('div');
+            actionsDiv.className = 'msg-actions';
+            actionsDiv.innerHTML = `
+                <button class="action-btn" onclick="copyMessageText('${msgId}')"><i class="fas fa-copy"></i> Salin</button>
+                <button class="action-btn del-msg-btn" onclick="deleteSingleMessage('${msgId}')"><i class="fas fa-trash"></i> Hapus</button>
+            `;
+            wrap.appendChild(actionsDiv);
+
+            chatBox.appendChild(wrap);
+            scrollToBottom();
+        }
+
+        function copyMessageText(msgId) {
+            let s = allSessions[currentSessionId];
+            let msg = s.messages.find(m => m.id === msgId);
+            if(msg) {
+                navigator.clipboard.writeText(msg.text).then(() => {
+                    alert("Pesan berhasil disalin!");
+                });
+            }
+        }
+
+        function deleteSingleMessage(msgId) {
+            if(confirm("Hapus pesan ini?")) {
+                let s = allSessions[currentSessionId];
+                s.messages = s.messages.filter(m => m.id !== msgId);
+                
+                // Jika setelah dihapus jadi kosong, balikkan title-nya
+                if(s.messages.length === 0) {
+                    s.title = "Obrolan Kosong";
+                }
+                
+                s.updatedAt = Date.now();
+                saveAllSessionsToStorage();
+                renderHistoryTableList();
+                renderCurrentChatMessages();
             }
         }
 
@@ -462,6 +743,7 @@
             }, 50);
         }
 
+        /* --- LOGIKA PENGIRIMAN & ENGINE API --- */
         async function kirimPesan() {
             const pesanText = userInput.value.trim();
             if (!pesanText) return;
@@ -469,12 +751,44 @@
             const hero = document.getElementById('welcomeHero');
             if (hero) hero.remove();
 
-            appendMessage(pesanText, 'user');
+            let s = allSessions[currentSessionId];
+            
+            // Set judul tabel berdasarkan isi pesan pertama kali di chat itu
+            if(s.messages.length === 0) {
+                s.title = pesanText;
+            }
+
+            let now = new Date();
+            let timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let dayLabel = getDayLabel(now);
+            let userMsgId = 'msg_' + Date.now();
+
+            let newMsgObj = {
+                id: userMsgId,
+                role: 'user',
+                text: pesanText,
+                timeStr: timeStr,
+                dayLabel: dayLabel
+            };
+
+            // Tampilkan tanggal di atas chat jika pesan pertama hari ini
+            let lastMsg = s.messages[s.messages.length - 1];
+            if(!lastMsg || lastMsg.dayLabel !== dayLabel) {
+                let sep = document.createElement('div');
+                sep.className = 'day-separator';
+                sep.innerHTML = `<span>${dayLabel}</span>`;
+                chatBox.appendChild(sep);
+            }
+
+            s.messages.push(newMsgObj);
+            appendMessageDOM(pesanText, 'user', timeStr, userMsgId);
             userInput.value = '';
             
-            chatHistoryData.push({ role: "user", text: pesanText });
-            localStorage.setItem('ai_chatHistory', JSON.stringify(chatHistoryData));
+            s.updatedAt = Date.now();
+            saveAllSessionsToStorage();
+            renderHistoryTableList();
 
+            // Setup Animasi Loading Tiga Titik
             const typingId = 'typing-' + Date.now();
             const typingDiv = document.createElement('div');
             typingDiv.className = 'typing-indicator';
@@ -483,7 +797,8 @@
             chatBox.appendChild(typingDiv);
             scrollToBottom();
 
-            let apiContents = chatHistoryData.map(msg => ({
+            // Mapping format memori riwayat untuk payload API Gemini
+            let apiContents = s.messages.map(msg => ({
                 role: msg.role === 'user' ? 'user' : 'model',
                 parts: [{ text: msg.text }]
             }));
@@ -514,25 +829,33 @@
                 }
 
                 const jawabanAI = data.candidates[0].content.parts[0].text;
-                appendMessage(jawabanAI, 'ai');
+                let aiTime = new Date();
+                let aiTimeStr = aiTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                let aiMsgId = 'msg_' + Date.now() + '_ai';
+
+                let aiMsgObj = {
+                    id: aiMsgId,
+                    role: 'model',
+                    text: jawabanAI,
+                    timeStr: aiTimeStr,
+                    dayLabel: dayLabel
+                };
+
+                s.messages.push(aiMsgObj);
+                appendMessageDOM(jawabanAI, 'ai', aiTimeStr, aiMsgId);
                 
-                chatHistoryData.push({ role: "model", text: jawabanAI });
-                localStorage.setItem('ai_chatHistory', JSON.stringify(chatHistoryData));
+                s.updatedAt = Date.now();
+                saveAllSessionsToStorage();
+                renderHistoryTableList();
 
             } catch (error) {
                 const elementTyping = document.getElementById(typingId);
                 if(elementTyping) elementTyping.remove();
-                appendMessage("Gagal terhubung ke AI. Silakan periksa kembali konfigurasi atau koneksi internet.", 'ai');
+                
+                let errId = 'err_' + Date.now();
+                appendMessageDOM("Gagal terhubung ke AI. Silakan periksa kembali konfigurasi atau koneksi internet.", 'ai', timeStr, errId);
                 console.error(error);
             }
-        }
-
-        function appendMessage(text, sender) {
-            let div = document.createElement('div');
-            div.className = `message ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
-            div.innerHTML = text.replace(/\n/g, '<br>');
-            chatBox.appendChild(div);
-            scrollToBottom();
         }
     </script>
 </body>
