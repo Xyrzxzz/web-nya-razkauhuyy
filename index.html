@@ -3,181 +3,484 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot AI Saya</title>
+    <title>AI Asisten Modern</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Mengatur dasar halaman web agar pas di layar HP */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --bg-color: #f3f4f6;
+            --chat-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --user-bubble: #2563eb;
+            --ai-bubble: #f3f4f6;
+            --sidebar-bg: #111827;
+            --sidebar-text: #f9fafb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
         body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #f7f9fa; 
+            background-color: var(--bg-color); 
             display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh;
-        }
-
-        /* Wadah utama Chat yang responsif di HP */
-        .chat-container { 
-            width: 100%; 
-            max-width: 450px; 
             height: 100vh; 
-            background: #ffffff; 
-            display: flex; 
-            flex-direction: column; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-        }
-        @media (min-width: 450px) {
-            .chat-container { height: 90vh; border-radius: 15px; }
+            overflow: hidden; 
+            color: var(--text-main);
         }
 
-        /* Bagian Atas / Header Web AI */
-        .chat-header { 
-            background: #0078ff; 
-            color: white; 
-            padding: 15px; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 18px; 
-            border-top-left-radius: inherit; 
-            border-top-right-radius: inherit;
+        /* --- SIDEBAR MENU --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: fixed;
+            height: 100%;
+            z-index: 100;
+            transform: translateX(-100%);
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #374151; }
+        .profile-section { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .avatar { width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
+        .name-wrapper { flex: 1; }
+        #userNameDisplay { font-weight: 600; font-size: 16px; margin-bottom: 3px; }
+        .edit-name-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;}
+        
+        .info-section { padding: 20px; font-size: 12px; color: #9ca3af; flex: 1;}
+        .info-item { margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        
+        .settings-section { padding: 20px; border-top: 1px solid #374151; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px;}
+        select { background: #374151; color: white; border: none; padding: 5px 10px; border-radius: 5px; outline: none;}
+        
+        .clear-chat-btn { width: 100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 8px;}
+
+        /* Overlay gelap saat sidebar buka di HP */
+        .overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 90; display: none;
+        }
+        .overlay.show { display: block; }
+
+        /* --- MAIN CHAT AREA --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            background: var(--chat-bg);
+            transition: margin-left 0.3s ease;
         }
 
-        /* Area tempat pesan muncul */
-        .chat-box { 
-            flex: 1; 
-            padding: 15px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            background: #f0f2f5;
+        .header {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+            font-size: 18px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .menu-btn { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 5px; }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
         }
 
-        /* Gaya balon balon chat */
-        .msg { 
-            padding: 10px 14px; 
-            border-radius: 18px; 
-            max-width: 80%; 
-            font-size: 15px; 
-            line-height: 1.4;
+        /* Tampilan Layar Kosong (Hero) */
+        .welcome-hero {
+            margin: auto;
+            text-align: center;
+            padding: 20px;
+            animation: fadeIn 0.8s ease;
+        }
+        .hero-icon { font-size: 50px; margin-bottom: 15px; background: -webkit-linear-gradient(#3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+        .hero-title { font-size: 24px; font-weight: 600; margin-bottom: 10px; }
+        .hero-subtitle { color: var(--text-muted); font-size: 15px; max-width: 300px; margin: 0 auto;}
+
+        /* Balon Chat */
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
             word-wrap: break-word;
+            animation: slideUp 0.3s ease;
         }
-        .user { 
-            background: #0078ff; 
-            color: white; 
-            align-self: flex-end; 
-            border-bottom-right-radius: 2px;
+        .user-msg {
+            background-color: var(--user-bubble);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
         }
-        .ai { 
-            background: white; 
-            color: #333; 
-            align-self: flex-start; 
-            border-bottom-left-radius: 2px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        .ai-msg {
+            background-color: var(--ai-bubble);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
         }
 
-        /* Area bawah tempat mengetik */
-        .input-area { 
-            padding: 10px; 
-            background: white; 
-            display: flex; 
-            gap: 8px; 
-            border-top: 1px solid #e6e6e6;
+        /* Indikator Berpikir (Typing) */
+        .typing-indicator {
+            display: flex; gap: 5px; padding: 15px; align-self: flex-start;
+            background-color: var(--ai-bubble); border-radius: 18px; border-bottom-left-radius: 4px;
         }
-        input { 
-            flex: 1; 
-            padding: 12px; 
-            border: 1px solid #e6e6e6; 
-            border-radius: 25px; 
-            outline: none; 
+        .dot { width: 8px; height: 8px; background-color: #9ca3af; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Area Input */
+        .input-wrapper {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+        .input-box {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            padding: 12px 20px;
             font-size: 15px;
-            background: #f7f9fa;
+            outline: none;
+            transition: all 0.2s;
         }
-        input:focus { border-color: #0078ff; background: white; }
-        button { 
-            background: #0078ff; 
-            color: white; 
-            border: none; 
-            padding: 0 20px; 
-            border-radius: 25px; 
-            font-weight: bold; 
+        .input-box:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.2s;
         }
-        button:active { opacity: 0.8; }
+        .send-btn:active { transform: scale(0.9); }
+
+        /* Animasi */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* Media Query untuk Desktop */
+        @media (min-width: 768px) {
+            .sidebar { transform: translateX(0); position: relative; }
+            .overlay { display: none !important; }
+            .menu-btn { display: none; }
+            .message { max-width: 70%; }
+        }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-header">🤖 AI Asistenku</div>
-    <div class="chat-box" id="chatBox">
-        <div class="msg ai">Halo! Saya adalah AI buatanmu yang ditenagai Gemini. Ada yang bisa saya bantu hari ini?</div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-section">
+                <div class="avatar" id="avatarInitial">G</div>
+                <div class="name-wrapper">
+                    <div id="userNameDisplay">Guest</div>
+                    <button class="edit-name-btn" onclick="editName()"><i class="fas fa-pen"></i> Edit Nama</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-item"><i class="fas fa-clock"></i> <span id="currentTime"></span></div>
+            <div class="info-item"><i class="fas fa-history"></i> Terakhir buka: <span id="lastOpened">Baru saja</span></div>
+            <br>
+            <p style="color: #6b7280; font-weight: bold; margin-bottom: 10px;">Status Sistem</p>
+            <div class="info-item" style="color: #4ade80;"><i class="fas fa-check-circle"></i> AI Siap Digunakan</div>
+            <div class="info-item" style="color: #4ade80;"><i class="fas fa-check-circle"></i> Memori Aktif</div>
+        </div>
+
+        <div class="settings-section">
+            <div class="setting-row">
+                <span><i class="fas fa-globe"></i> Bahasa UI</span>
+                <select id="langSelect" onchange="changeLanguage()">
+                    <option value="id">Indonesia</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <button class="clear-chat-btn" onclick="clearHistory()"><i class="fas fa-trash"></i> Hapus Obrolan</button>
+        </div>
     </div>
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Tanyakan sesuatu ke AI..." onkeypress="cekEnter(event)">
-        <button onclick="kirimPesan()">Kirim</button>
+
+    <div class="main-content">
+        <div class="header">
+            <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <span id="headerTitle">AI Asistenku</span>
+        </div>
+
+        <div class="chat-container" id="chatBox">
+            </div>
+
+        <div class="input-wrapper">
+            <input type="text" class="input-box" id="userInput" placeholder="Ketik pesanmu di sini..." onkeypress="cekEnter(event)">
+            <button class="send-btn" onclick="kirimPesan()"><i class="fas fa-paper-plane"></i></button>
+        </div>
     </div>
-</div>
 
-<script>
-    // === MODIFIKASI BAGIAN INI ===
-    // Ganti teks di bawah dengan API KEY yang kamu dapat dari Langkah 1
-    const API_KEY = "AIzaSyChDpzP_0sIlYIGuyH2A4cDm_1S-ks-nXQ"; 
-
-    // Fungsi agar bisa mengirim pesan dengan menekan tombol 'Enter' di keyboard HP
-    function cekEnter(event) {
-        if (event.key === "Enter") {
-            kirimPesan();
-        }
-    }
-
-    async function kirimPesan() {
-        const input = document.getElementById('userInput');
+    <script>
+        // ==========================================
+        // 1. MASUKKAN API KEY KAMU DI SINI
+        // ==========================================
+        const API_KEY = "AIzaSyChDpzP_0sIlYIGuyH2A4cDm_1S-ks-nXQ"; 
+        
+        // Elemen DOM
         const chatBox = document.getElementById('chatBox');
-        const pesanUser = input.value.trim();
+        const userInput = document.getElementById('userInput');
         
-        // Jika input kosong, batalkan pengiriman
-        if (!pesanUser) return;
+        // Memori Obrolan (Konteks AI)
+        let chatHistoryData = [];
 
-        // 1. Tampilkan pesan user ke layar chat
-        chatBox.innerHTML += `<div class="msg user">${pesanUser}</div>`;
-        input.value = ''; // Kosongkan kolom input
-        chatBox.scrollTop = chatBox.scrollHeight; // Geser scroll otomatis ke bawah
+        // Kumpulan Teks UI (Dua Bahasa)
+        const uiText = {
+            id: {
+                heroTitle: "Ada yang ingin diceritakan?",
+                heroSub: "Mau cerita, bertanya, atau belajar apapun hari ini, saya siap mendengarkan dan membantu!",
+                placeholder: "Ketik pesanmu di sini...",
+                header: "AI Asistenku"
+            },
+            en: {
+                heroTitle: "What's on your mind?",
+                heroSub: "Want to chat, ask, or learn anything today? I'm here to listen and help!",
+                placeholder: "Type your message here...",
+                header: "My AI Assistant"
+            }
+        };
 
-        // 2. Buat elemen loading sementara selagi AI berpikir
-        const loadingId = 'loading-' + Date.now();
-        chatBox.innerHTML += `<div class="msg ai" id="${loadingId}"><i>Sedang mengetik...</i></div>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
+        // ==========================================
+        // INISIALISASI SAAT WEB DIBUKA
+        // ==========================================
+        window.onload = () => {
+            loadUserData();
+            updateTime();
+            setInterval(updateTime, 60000); // Update jam tiap menit
+            loadChatHistory();
+        };
 
-        try {
-            // 3. Menghubungkan ke server Google Gemini menggunakan JavaScript (Fetch API)
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: pesanUser }] }] })
-            });
-
-            // 4. Membaca data kiriman dari Google
-            const data = await response.json();
-            
-            // Mengambil teks jawaban utama dari struktur data Google Gemini
-            const jawabanAI = data.candidates[0].content.parts[0].text;
-            
-            // 5. Ganti teks "Sedang mengetik..." dengan jawaban asli dari AI
-            document.getElementById(loadingId).innerText = jawabanAI;
-
-        } catch (error) {
-            // Jika ada masalah (salah API Key, kuota habis, atau internet putus)
-            document.getElementById(loadingId).innerHTML = "<span style='color: red;'>Waduh, gagal terhubung ke AI. Pastikan API Key kamu benar atau periksa koneksi internet.</span>";
-            console.error(error);
+        // ==========================================
+        // FUNGSI MANAJEMEN USER & UI
+        // ==========================================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
         }
-        
-        // Geser kembali scroll ke bawah setelah jawaban muncul
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-</script>
 
-</body>
-  </html>
-      
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const dateString = now.toLocaleDateString();
+            document.getElementById('currentTime').innerText = `${dateString} - ${timeString}`;
+        }
+
+        function loadUserData() {
+            // Load Nama
+            let nama = localStorage.getItem('ai_userName') || 'Guest';
+            document.getElementById('userNameDisplay').innerText = nama;
+            document.getElementById('avatarInitial').innerText = nama.charAt(0).toUpperCase();
+
+            // Load Waktu Terakhir Buka
+            let lastOpen = localStorage.getItem('ai_lastOpened');
+            if(lastOpen) {
+                document.getElementById('lastOpened').innerText = lastOpen;
+            }
+            // Simpan waktu buka saat ini untuk sesi berikutnya
+            const now = new Date();
+            localStorage.setItem('ai_lastOpened', now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+
+            // Load Bahasa
+            let lang = localStorage.getItem('ai_lang') || 'id';
+            document.getElementById('langSelect').value = lang;
+            applyLanguage(lang);
+        }
+
+        function editName() {
+            let currentName = localStorage.getItem('ai_userName') || 'Guest';
+            let newName = prompt("Masukkan nama panggilanmu:", currentName);
+            if (newName && newName.trim() !== "") {
+                localStorage.setItem('ai_userName', newName.trim());
+                loadUserData();
+            }
+        }
+
+        function changeLanguage() {
+            let selectedLang = document.getElementById('langSelect').value;
+            localStorage.setItem('ai_lang', selectedLang);
+            applyLanguage(selectedLang);
+        }
+
+        function applyLanguage(lang) {
+            userInput.placeholder = uiText[lang].placeholder;
+            document.getElementById('headerTitle').innerText = uiText[lang].header;
+            
+            // Render ulang Hero jika chat kosong
+            if (chatHistoryData.length === 0) {
+                renderHero(lang);
+            }
+        }
+
+        function renderHero(lang) {
+            chatBox.innerHTML = `
+                <div class="welcome-hero" id="welcomeHero">
+                    <i class="fas fa-sparkles hero-icon"></i>
+                    <h2 class="hero-title">${uiText[lang].heroTitle}</h2>
+                    <p class="hero-subtitle">${uiText[lang].heroSub}</p>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // FUNGSI CHAT & LOGIKA AI
+        // ==========================================
+        function loadChatHistory() {
+            let savedChat = localStorage.getItem('ai_chatHistory');
+            if (savedChat) {
+                chatHistoryData = JSON.parse(savedChat);
+                if (chatHistoryData.length > 0) {
+                    chatBox.innerHTML = ''; // Hapus hero
+                    // Render ulang semua pesan dari memori
+                    chatHistoryData.forEach(msg => {
+                        let div = document.createElement('div');
+                        div.className = `message ${msg.role === 'user' ? 'user-msg' : 'ai-msg'}`;
+                        div.innerText = msg.text;
+                        chatBox.appendChild(div);
+                    });
+                    scrollToBottom();
+                } else {
+                    let lang = localStorage.getItem('ai_lang') || 'id';
+                    renderHero(lang);
+                }
+            } else {
+                let lang = localStorage.getItem('ai_lang') || 'id';
+                renderHero(lang);
+            }
+        }
+
+        function clearHistory() {
+            if(confirm("Yakin ingin menghapus semua memori obrolan?")) {
+                localStorage.removeItem('ai_chatHistory');
+                chatHistoryData = [];
+                let lang = localStorage.getItem('ai_lang') || 'id';
+                renderHero(lang);
+                toggleSidebar(); // Tutup sidebar otomatis di HP
+            }
+        }
+
+        function cekEnter(event) {
+            if (event.key === "Enter") kirimPesan();
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function kirimPesan() {
+            const pesanText = userInput.value.trim();
+            if (!pesanText) return;
+
+            // Hapus layar hero jika ini chat pertama
+            const hero = document.getElementById('welcomeHero');
+            if (hero) hero.remove();
+
+            // 1. Tampilkan Chat User
+            appendMessage(pesanText, 'user');
+            userInput.value = '';
+            
+            // Simpan ke memori API
+            chatHistoryData.push({ role: "user", text: pesanText });
+            localStorage.setItem('ai_chatHistory', JSON.stringify(chatHistoryData));
+
+            // 2. Tampilkan Animasi Typing AI
+            const typingId = 'typing-' + Date.now();
+            chatBox.innerHTML += `
+                <div class="typing-indicator" id="${typingId}">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                </div>`;
+            scrollToBottom();
+
+            // 3. Siapkan Format Memori untuk AI (Memasukkan histori sebelumnya)
+            let apiContents = chatHistoryData.map(msg => ({
+                role: msg.role === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text }]
+            }));
+
+            // Ambil Nama untuk System Prompt
+            let userName = localStorage.getItem('ai_userName') || 'Teman';
+            let currentLang = localStorage.getItem('ai_lang') || 'id';
+
+            try {
+                // Memanggil API Gemini 1.5 Flash dengan System Instruction
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        system_instruction: {
+                            parts: [{ 
+                                text: `Kamu adalah asisten AI yang sangat pintar, ramah, hangat, dan penuh empati. Namamu adalah AI Asisten. Nama pengguna yang sedang mengobrol denganmu adalah "${userName}". Jawablah pertanyaannya dengan cara yang paling membantu, suportif, dan senatural mungkin layaknya sahabat yang cerdas. Gunakan bahasa yang sesuai dengan yang digunakan pengguna.`
+                            }]
+                        },
+                        contents: apiContents
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Hapus indikator typing
+                document.getElementById(typingId).remove();
+
+                if(data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                // Ambil jawaban AI
+                const jawabanAI = data.candidates[0].content.parts[0].text;
+                
+                // Tampilkan Jawaban AI
+                appendMessage(jawabanAI, 'ai');
+                
+                // Simpan jawaban AI ke memori
+                chatHistoryData.push({ role: "model", text: jawabanAI });
+                localStorage.setItem('ai_chatHistory', JSON.stringify(chatHistoryData));
+
+            } catch (error) {
+                document.getElementById(typingId).remove();
+                appendMessage("Maaf, terjadi kesalahan atau API Key belum diisi. Silakan cek kembali.", 'ai');
+                console.error(error);
+            }
+        }
+
+        function appendMessage(text, sender) {
+            let div = document.createElement('div');
+            div.className = `message ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
+            // Format text simpel agar enter terbaca
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            cha
