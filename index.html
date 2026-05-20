@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI Asisten Modern</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -22,11 +22,16 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            position: fixed;
+        }
+
         body { 
-            background-color: var(--bg-color); 
             display: flex; 
-            height: 100vh; 
-            overflow: hidden; 
             color: var(--text-main);
         }
 
@@ -37,8 +42,11 @@
             color: var(--sidebar-text);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
             height: 100%;
             z-index: 100;
             transform: translateX(-100%);
@@ -51,10 +59,10 @@
         #userNameDisplay { font-weight: 600; font-size: 16px; margin-bottom: 3px; }
         .edit-name-btn { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;}
         
-        .info-section { padding: 20px; font-size: 12px; color: #9ca3af; flex: 1;}
+        .info-section { padding: 20px; font-size: 12px; color: #9ca3af; flex: 1; overflow-y: auto;}
         .info-item { margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
         
-        .settings-section { padding: 20px; border-top: 1px solid #374151; }
+        .settings-section { padding: 20px; border-top: 1px solid #374151; background-color: var(--sidebar-bg); }
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px;}
         select { background: #374151; color: white; border: none; padding: 5px 10px; border-radius: 5px; outline: none;}
         
@@ -64,8 +72,9 @@
         .overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 90; display: none;
+            opacity: 0; transition: opacity 0.3s ease;
         }
-        .overlay.show { display: block; }
+        .overlay.show { display: block; opacity: 1; }
 
         /* --- MAIN CHAT AREA --- */
         .main-content {
@@ -73,8 +82,9 @@
             display: flex;
             flex-direction: column;
             width: 100%;
+            height: 100%;
             background: var(--chat-bg);
-            transition: margin-left 0.3s ease;
+            position: relative;
         }
 
         .header {
@@ -87,11 +97,10 @@
             gap: 15px;
             font-weight: 600;
             font-size: 18px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            height: 60px;
+            flex-shrink: 0;
         }
-        .menu-btn { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 5px; }
+        .menu-btn { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 10px; display: block; z-index: 10; }
 
         .chat-container {
             flex: 1;
@@ -100,7 +109,8 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            scroll-behavior: smooth;
+            background: var(--chat-bg);
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Tampilan Layar Kosong (Hero) */
@@ -109,10 +119,11 @@
             text-align: center;
             padding: 20px;
             animation: fadeIn 0.8s ease;
+            max-width: 90%;
         }
         .hero-icon { font-size: 50px; margin-bottom: 15px; background: -webkit-linear-gradient(#3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
-        .hero-title { font-size: 24px; font-weight: 600; margin-bottom: 10px; }
-        .hero-subtitle { color: var(--text-muted); font-size: 15px; max-width: 300px; margin: 0 auto;}
+        .hero-title { font-size: 22px; font-weight: 600; margin-bottom: 10px; line-height: 1.3; }
+        .hero-subtitle { color: var(--text-muted); font-size: 14px; max-width: 320px; margin: 0 auto; line-height: 1.4; }
 
         /* Balon Chat */
         .message {
@@ -139,8 +150,9 @@
 
         /* Indikator Berpikir (Typing) */
         .typing-indicator {
-            display: flex; gap: 5px; padding: 15px; align-self: flex-start;
+            display: flex; gap: 5px; padding: 15px 20px; align-self: flex-start;
             background-color: var(--ai-bubble); border-radius: 18px; border-bottom-left-radius: 4px;
+            margin-top: 5px;
         }
         .dot { width: 8px; height: 8px; background-color: #9ca3af; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
         .dot:nth-child(1) { animation-delay: -0.32s; }
@@ -148,12 +160,14 @@
 
         /* Area Input */
         .input-wrapper {
-            padding: 15px 20px;
+            padding: 12px 15px;
             background: white;
             border-top: 1px solid #e5e7eb;
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             gap: 10px;
+            height: 70px;
+            flex-shrink: 0;
         }
         .input-box {
             flex: 1;
@@ -164,6 +178,7 @@
             font-size: 15px;
             outline: none;
             transition: all 0.2s;
+            height: 46px;
         }
         .input-box:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         
@@ -180,6 +195,7 @@
             justify-content: center;
             font-size: 18px;
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
         .send-btn:active { transform: scale(0.9); }
 
@@ -188,7 +204,7 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        /* Media Query untuk Desktop */
+        /* Media Query Desktop & Orientasi Layar */
         @media (min-width: 768px) {
             .sidebar { transform: translateX(0); position: relative; }
             .overlay { display: none !important; }
@@ -249,50 +265,41 @@
     </div>
 
     <script>
-        // ==========================================
-        // 1. MASUKKAN API KEY KAMU DI SINI
-        // ==========================================
         const API_KEY = "AIzaSyChDpzP_0sIlYIGuyH2A4cDm_1S-ks-nXQ"; 
         
-        // Elemen DOM
         const chatBox = document.getElementById('chatBox');
         const userInput = document.getElementById('userInput');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
         
-        // Memori Obrolan (Konteks AI)
         let chatHistoryData = [];
 
-        // Kumpulan Teks UI (Dua Bahasa)
         const uiText = {
             id: {
-                heroTitle: "Ada yang ingin diceritakan?",
-                heroSub: "Mau cerita, bertanya, atau belajar apapun hari ini, saya siap mendengarkan dan membantu!",
+                heroTitle: "Mau Cerita, Bertanya, Apapun Hari Ini!",
+                heroSub: "Saya siap mendengarkan dengan penuh perhatian dan memberikan solusi terbaik untukmu sahabat.",
                 placeholder: "Ketik pesanmu di sini...",
                 header: "AI Asistenku"
             },
             en: {
-                heroTitle: "What's on your mind?",
-                heroSub: "Want to chat, ask, or learn anything today? I'm here to listen and help!",
+                heroTitle: "Let's Talk or Ask Anything Today!",
+                heroSub: "I'm ready to listen closely and provide the absolute best solutions for you, my friend.",
                 placeholder: "Type your message here...",
                 header: "My AI Assistant"
             }
         };
 
-        // ==========================================
-        // INISIALISASI SAAT WEB DIBUKA
-        // ==========================================
         window.onload = () => {
             loadUserData();
             updateTime();
-            setInterval(updateTime, 60000); // Update jam tiap menit
+            setInterval(updateTime, 60000);
             loadChatHistory();
+            window.addEventListener('resize', scrollToBottom);
         };
 
-        // ==========================================
-        // FUNGSI MANAJEMEN USER & UI
-        // ==========================================
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('show');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
         }
 
         function updateTime() {
@@ -303,21 +310,17 @@
         }
 
         function loadUserData() {
-            // Load Nama
             let nama = localStorage.getItem('ai_userName') || 'Guest';
             document.getElementById('userNameDisplay').innerText = nama;
             document.getElementById('avatarInitial').innerText = nama.charAt(0).toUpperCase();
 
-            // Load Waktu Terakhir Buka
             let lastOpen = localStorage.getItem('ai_lastOpened');
             if(lastOpen) {
                 document.getElementById('lastOpened').innerText = lastOpen;
             }
-            // Simpan waktu buka saat ini untuk sesi berikutnya
             const now = new Date();
             localStorage.setItem('ai_lastOpened', now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
 
-            // Load Bahasa
             let lang = localStorage.getItem('ai_lang') || 'id';
             document.getElementById('langSelect').value = lang;
             applyLanguage(lang);
@@ -342,7 +345,6 @@
             userInput.placeholder = uiText[lang].placeholder;
             document.getElementById('headerTitle').innerText = uiText[lang].header;
             
-            // Render ulang Hero jika chat kosong
             if (chatHistoryData.length === 0) {
                 renderHero(lang);
             }
@@ -351,23 +353,19 @@
         function renderHero(lang) {
             chatBox.innerHTML = `
                 <div class="welcome-hero" id="welcomeHero">
-                    <i class="fas fa-sparkles hero-icon"></i>
+                    <i class="fas fa-wand-magic-sparkles hero-icon"></i>
                     <h2 class="hero-title">${uiText[lang].heroTitle}</h2>
                     <p class="hero-subtitle">${uiText[lang].heroSub}</p>
                 </div>
             `;
         }
 
-        // ==========================================
-        // FUNGSI CHAT & LOGIKA AI
-        // ==========================================
         function loadChatHistory() {
             let savedChat = localStorage.getItem('ai_chatHistory');
             if (savedChat) {
                 chatHistoryData = JSON.parse(savedChat);
                 if (chatHistoryData.length > 0) {
-                    chatBox.innerHTML = ''; // Hapus hero
-                    // Render ulang semua pesan dari memori
+                    chatBox.innerHTML = '';
                     chatHistoryData.forEach(msg => {
                         let div = document.createElement('div');
                         div.className = `message ${msg.role === 'user' ? 'user-msg' : 'ai-msg'}`;
@@ -391,54 +389,52 @@
                 chatHistoryData = [];
                 let lang = localStorage.getItem('ai_lang') || 'id';
                 renderHero(lang);
-                toggleSidebar(); // Tutup sidebar otomatis di HP
+                if(window.innerWidth < 768) toggleSidebar();
             }
         }
 
         function cekEnter(event) {
-            if (event.key === "Enter") kirimPesan();
+            if (event.key === "Enter") {
+                event.preventDefault();
+                kirimPesan();
+            }
         }
 
         function scrollToBottom() {
-            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(() => {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 50);
         }
 
         async function kirimPesan() {
             const pesanText = userInput.value.trim();
             if (!pesanText) return;
 
-            // Hapus layar hero jika ini chat pertama
             const hero = document.getElementById('welcomeHero');
             if (hero) hero.remove();
 
-            // 1. Tampilkan Chat User
             appendMessage(pesanText, 'user');
             userInput.value = '';
             
-            // Simpan ke memori API
             chatHistoryData.push({ role: "user", text: pesanText });
             localStorage.setItem('ai_chatHistory', JSON.stringify(chatHistoryData));
 
-            // 2. Tampilkan Animasi Typing AI
             const typingId = 'typing-' + Date.now();
-            chatBox.innerHTML += `
-                <div class="typing-indicator" id="${typingId}">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                </div>`;
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = typingId;
+            typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+            chatBox.appendChild(typingDiv);
             scrollToBottom();
 
-            // 3. Siapkan Format Memori untuk AI (Memasukkan histori sebelumnya)
             let apiContents = chatHistoryData.map(msg => ({
                 role: msg.role === 'user' ? 'user' : 'model',
                 parts: [{ text: msg.text }]
             }));
 
-            // Ambil Nama untuk System Prompt
             let userName = localStorage.getItem('ai_userName') || 'Teman';
-            let currentLang = localStorage.getItem('ai_lang') || 'id';
 
             try {
-                // Memanggil API Gemini 1.5 Flash dengan System Instruction
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -454,26 +450,23 @@
 
                 const data = await response.json();
                 
-                // Hapus indikator typing
-                document.getElementById(typingId).remove();
+                const elementTyping = document.getElementById(typingId);
+                if(elementTyping) elementTyping.remove();
 
                 if(data.error) {
                     throw new Error(data.error.message);
                 }
 
-                // Ambil jawaban AI
                 const jawabanAI = data.candidates[0].content.parts[0].text;
-                
-                // Tampilkan Jawaban AI
                 appendMessage(jawabanAI, 'ai');
                 
-                // Simpan jawaban AI ke memori
                 chatHistoryData.push({ role: "model", text: jawabanAI });
                 localStorage.setItem('ai_chatHistory', JSON.stringify(chatHistoryData));
 
             } catch (error) {
-                document.getElementById(typingId).remove();
-                appendMessage("Maaf, terjadi kesalahan atau API Key belum diisi. Silakan cek kembali.", 'ai');
+                const elementTyping = document.getElementById(typingId);
+                if(elementTyping) elementTyping.remove();
+                appendMessage("Gagal terhubung ke AI. Silakan periksa kembali konfigurasi atau koneksi internet.", 'ai');
                 console.error(error);
             }
         }
@@ -481,6 +474,11 @@
         function appendMessage(text, sender) {
             let div = document.createElement('div');
             div.className = `message ${sender === 'user' ? 'user-msg' : 'ai-msg'}`;
-            // Format text simpel agar enter terbaca
             div.innerHTML = text.replace(/\n/g, '<br>');
-            cha
+            chatBox.appendChild(div);
+            scrollToBottom();
+        }
+    </script>
+</body>
+                </html>
+            
