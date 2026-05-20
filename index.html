@@ -111,7 +111,6 @@
             text-align: left;
             transition: background 0.2s;
         }
-        .sidebar-dark-theme .history-item { background: #111827; }
         .history-item:hover, .history-item.active { background: #374151; }
         .history-text-wrapper {
             flex: 1;
@@ -162,6 +161,8 @@
         .settings-section { padding: 15px; border-top: 1px solid #374151; background-color: var(--sidebar-bg); }
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px;}
         select { background: #374151; color: white; border: none; padding: 4px 8px; border-radius: 5px; outline: none; cursor: pointer; font-size: 12px;}
+        .key-btn { background: #374151; color: #f3f4f6; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;}
+        .key-btn:hover { background: #4b5563; }
         
         .footer-credit {
             text-align: center;
@@ -408,11 +409,14 @@
         <div class="history-section">
             <button class="new-chat-sidebar-btn" onclick="startNewChatSession()"><i class="fas fa-plus"></i> Obrolan Baru</button>
             <div class="history-title-label">Riwayat Obrolan</div>
-            <div class="history-list" id="historyContainerList">
-                </div>
+            <div class="history-list" id="historyContainerList"></div>
         </div>
 
         <div class="settings-section">
+            <div class="setting-row">
+                <span><i class="fas fa-key"></i> API Kunci</span>
+                <button class="key-btn" onclick="inputApiKey()"><i class="fas fa-cog"></i> Atur API</button>
+            </div>
             <div class="setting-row">
                 <span><i class="fas fa-palette"></i> Tema</span>
                 <select id="themeSelect" onchange="changeTheme()">
@@ -439,8 +443,7 @@
             <span id="headerTitle">AI Asistenku</span>
         </div>
 
-        <div class="chat-container" id="chatBox">
-            </div>
+        <div class="chat-container" id="chatBox"></div>
 
         <div class="input-wrapper">
             <input type="text" class="input-box" id="userInput" placeholder="Ketik pesanmu di sini..." onkeypress="cekEnter(event)">
@@ -449,15 +452,12 @@
     </div>
 
     <script>
-        const API_KEY = "AIzaSyA6IK-KX4msmVhZvL0ZZ2eijdOb4x8RH70"; 
-        
         const chatBox = document.getElementById('chatBox');
         const userInput = document.getElementById('userInput');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         const historyContainerList = document.getElementById('historyContainerList');
         
-        // Struktur Data Multi Sesi Obrolan
         let allSessions = {};
         let currentSessionId = "";
 
@@ -479,8 +479,28 @@
         window.onload = () => {
             loadUserData();
             loadAllSessions();
+            checkApiKeyOnLoad();
             window.addEventListener('resize', scrollToBottom);
         };
+
+        function checkApiKeyOnLoad() {
+            let key = localStorage.getItem('ai_secure_api_key');
+            // Jika memori lokal kosong, gunakan API key fresh yang dikasih Razkauhuyy sebagai default awal
+            if (!key || key.trim() === "") {
+                localStorage.setItem('ai_secure_api_key', 'AIzaSyA6IK-KX4msmVhZvL0ZZ2eijdOb4x8RH70');
+            }
+        }
+
+        function inputApiKey() {
+            let currentKey = localStorage.getItem('ai_secure_api_key') || '';
+            let newKey = prompt("Masukkan Google AI Studio API Key Baru kamu:", currentKey);
+            if (newKey !== null) {
+                localStorage.setItem('ai_secure_api_key', newKey.trim());
+                if (newKey.trim() !== "") {
+                    alert("API Key berhasil disimpan dengan aman di perangkat lokal!");
+                }
+            }
+        }
 
         function toggleSidebar() {
             sidebar.classList.toggle('open');
@@ -549,7 +569,6 @@
             `;
         }
 
-        /* --- MANAJEMEN MULTI SESI RIWAYAT (TABEL BUTTON) --- */
         function loadAllSessions() {
             let savedSessions = localStorage.getItem('ai_all_sessions');
             if (savedSessions) {
@@ -560,7 +579,6 @@
             if (sessionKeys.length === 0) {
                 startNewChatSession();
             } else {
-                // Urutkan ambil yang paling baru diakses
                 sessionKeys.sort((a, b) => allSessions[b].updatedAt - allSessions[a].updatedAt);
                 currentSessionId = sessionKeys[0];
                 renderHistoryTableList();
@@ -597,7 +615,7 @@
         }
 
         function deleteSessionTable(id, event) {
-            event.stopPropagation(); // Biar ga trigger selectSession
+            event.stopPropagation();
             if(confirm("Hapus tabel riwayat obrolan ini?")) {
                 delete allSessions[id];
                 saveAllSessionsToStorage();
@@ -623,7 +641,6 @@
                 let s = allSessions[key];
                 let dateObj = new Date(s.updatedAt);
                 let timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                
                 let activeClass = (key === currentSessionId) ? 'active' : '';
 
                 let itemHTML = `
@@ -654,7 +671,6 @@
             let lastDateLabel = "";
 
             s.messages.forEach(msg => {
-                // Cetak pembatas hari jika hari berbeda
                 if(msg.dayLabel && msg.dayLabel !== lastDateLabel) {
                     let sep = document.createElement('div');
                     sep.className = 'day-separator';
@@ -668,7 +684,6 @@
             scrollToBottom();
         }
 
-        /* --- TAMPILAN BALON CHAT & AKSI --- */
         function getDayLabel(date) {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             return date.toLocaleDateString('id-ID', options);
@@ -684,13 +699,11 @@
             div.innerHTML = text.replace(/\n/g, '<br>');
             wrap.appendChild(div);
 
-            // Elemen Jam Terkirim Di Bawah Balon
             let timeDiv = document.createElement('div');
             timeDiv.className = 'msg-timestamp';
             timeDiv.innerText = timeStr;
             wrap.appendChild(timeDiv);
 
-            // Tombol Salin dan Hapus Pesan Individu
             let actionsDiv = document.createElement('div');
             actionsDiv.className = 'msg-actions';
             actionsDiv.innerHTML = `
@@ -718,7 +731,6 @@
                 let s = allSessions[currentSessionId];
                 s.messages = s.messages.filter(m => m.id !== msgId);
                 
-                // Jika setelah dihapus jadi kosong, balikkan title-nya
                 if(s.messages.length === 0) {
                     s.title = "Obrolan Kosong";
                 }
@@ -743,8 +755,14 @@
             }, 50);
         }
 
-        /* --- LOGIKA PENGIRIMAN & ENGINE API --- */
         async function kirimPesan() {
+            const ACTIVE_API_KEY = localStorage.getItem('ai_secure_api_key');
+            if (!ACTIVE_API_KEY || ACTIVE_API_KEY.trim() === "") {
+                alert("API Key kosong. Silakan atur atau masukkan API Key di menu 'Atur API' terlebih dahulu.");
+                inputApiKey();
+                return;
+            }
+
             const pesanText = userInput.value.trim();
             if (!pesanText) return;
 
@@ -753,7 +771,6 @@
 
             let s = allSessions[currentSessionId];
             
-            // Set judul tabel berdasarkan isi pesan pertama kali di chat itu
             if(s.messages.length === 0) {
                 s.title = pesanText;
             }
@@ -771,7 +788,6 @@
                 dayLabel: dayLabel
             };
 
-            // Tampilkan tanggal di atas chat jika pesan pertama hari ini
             let lastMsg = s.messages[s.messages.length - 1];
             if(!lastMsg || lastMsg.dayLabel !== dayLabel) {
                 let sep = document.createElement('div');
@@ -788,7 +804,6 @@
             saveAllSessionsToStorage();
             renderHistoryTableList();
 
-            // Setup Animasi Loading Tiga Titik
             const typingId = 'typing-' + Date.now();
             const typingDiv = document.createElement('div');
             typingDiv.className = 'typing-indicator';
@@ -797,7 +812,6 @@
             chatBox.appendChild(typingDiv);
             scrollToBottom();
 
-            // Mapping format memori riwayat untuk payload API Gemini
             let apiContents = s.messages.map(msg => ({
                 role: msg.role === 'user' ? 'user' : 'model',
                 parts: [{ text: msg.text }]
@@ -806,7 +820,7 @@
             let userName = localStorage.getItem('ai_userName') || 'Teman';
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${ACTIVE_API_KEY}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -853,7 +867,7 @@
                 if(elementTyping) elementTyping.remove();
                 
                 let errId = 'err_' + Date.now();
-                appendMessageDOM("Gagal terhubung ke AI. Silakan periksa kembali konfigurasi atau koneksi internet.", 'ai', timeStr, errId);
+                appendMessageDOM("Gagal terhubung ke AI. Pastikan API Key di menu 'Atur API' benar, aktif, atau periksa koneksi internet.", 'ai', timeStr, errId);
                 console.error(error);
             }
         }
